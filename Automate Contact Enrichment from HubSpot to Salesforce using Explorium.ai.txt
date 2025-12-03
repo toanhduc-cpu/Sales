@@ -1,0 +1,755 @@
+================================================================================
+WORKFLOW: Automate Contact Enrichment from HubSpot to Salesforce using Explorium.ai
+================================================================================
+
+📋 BASIC INFORMATION
+------------------------------
+ID: 4839
+Name: Automate Contact Enrichment from HubSpot to Salesforce using Explorium.ai
+Total Views: 187
+Created At: 2025-06-10T06:40:34.915Z
+Purchase URL: None
+
+👤 AUTHOR INFORMATION
+------------------------------
+Name: explorium
+Username: explorium
+Verified: ✅ Yes
+Bio: Explorium empowers businesses to build high-performance GTM agents with specialized data infrastructure. Our seamless API integrations and high-quality data drive faster agent development and better results. With years of experience and robust data sets, we deliver context-aware solutions, helping AI agents achieve human-level support.
+Explorium is the essential data partner for teams building agent-driven technologies.
+Links: https://explorium.ai
+
+📝 DESCRIPTION
+------------------------------
+HubSpot Contact Enrichment with Explorium
+
+Template
+
+Download the following json file and import it to a new n8n workflow:
+
+hubspot\_flow.json
+
+Overview
+
+This n8n workflow monitors your HubSpot instance for newly created contacts and automatically enriches them with additional contact information. When a contact is created, the workflow:
+
+Detects the new contact via HubSpot webhook trigger
+Retrieves recent contact details from HubSpot
+Matches the contact against Explorium's database using name, company, and email
+Enriches the contact with professional emails and phone numbers
+Updates the HubSpot contact record with discovered information
+
+This automation ensures your sales and marketing teams have complete contact information, improving outreach success rates and data quality.
+
+Key Features
+
+Real-time Webhook Trigger**: Instantly processes new contacts as they're created
+Intelligent Matching**: Uses multiple data points (name, company, email) for accurate matching
+Comprehensive Enrichment**: Adds both professional and work emails, plus phone numbers
+Batch Processing**: Efficiently handles multiple contacts to optimize API usage
+Smart Data Mapping**: Intelligently maps multiple emails and phone numbers
+Profile Enrichment**: Optional additional enrichment for deeper contact insights
+Error Resilience**: Continues processing other contacts if some fail to match
+
+Prerequisites
+
+Before setting up this workflow, ensure you have:
+
+n8n instance (self-hosted or cloud)
+HubSpot account with:
+   Developer API access (for webhooks)
+   Private App or OAuth2 app created
+   Contact object permissions (read/write)
+Explorium API credentials (Bearer token) - Get explorium api key
+Understanding of HubSpot contact properties
+
+HubSpot Requirements
+
+Required Contact Properties
+
+The workflow uses these HubSpot contact properties:
+
+firstname - Contact's first name
+lastname - Contact's last name
+company - Associated company name
+email - Primary email (read and updated)
+work_email - Work email (updated by workflow)
+phone - Phone number (updated by workflow)
+
+API Access Setup
+
+Create a Private App in HubSpot:
+   Navigate to Settings → Integrations → Private Apps
+   Create new app with Contact read/write scopes
+   Copy the Access Token
+
+Set up Webhooks (for Developer API):
+   Create app in HubSpot Developers portal
+   Configure webhook for contact.creation events
+   Note the App ID and Developer API Key
+
+Custom Properties (Optional)
+
+Consider creating custom properties for:
+
+Multiple email addresses
+Mobile vs. office phone numbers
+Data enrichment timestamps
+Match confidence scores
+
+Installation & Setup
+
+Step 1: Import the Workflow
+
+Copy the workflow JSON from the template
+In n8n: Navigate to Workflows → Add Workflow → Import from File
+Paste the JSON and click Import
+
+Step 2: Configure HubSpot Developer API (Webhook)
+
+Click on the HubSpot Trigger node
+Under Credentials, click Create New
+Enter your HubSpot Developer credentials:
+   App ID: From your HubSpot app
+   Developer API Key: From your developer account
+   Client Secret: From your app settings
+Save as "HubSpot Developer account"
+
+Step 3: Configure HubSpot App Token
+
+Click on the HubSpot Recently Created node
+Under Credentials, click Create New (App Token)
+Enter your Private App access token
+Save as "HubSpot App Token account"
+Apply the same credentials to the Update HubSpot node
+
+Step 4: Configure Explorium API Credentials
+
+Click on the Explorium Match Prospects node
+Under Credentials, click Create New (HTTP Header Auth)
+Configure the authentication:
+   Name: Authorization
+   Value: Bearer YOUR_EXPLORIUM_API_TOKEN
+Save as "Header Auth Connection"
+Apply to all Explorium nodes:
+   Explorium Enrich Contacts Information
+   Explorium Enrich Profiles
+
+Step 5: Configure Webhook Subscription
+
+In HubSpot Developers portal:
+   Go to your app's webhook settings
+   Add subscription for contact.creation events
+   Set the target URL from the HubSpot Trigger node
+   Activate the subscription
+
+Step 6: Activate the Workflow
+
+Save the workflow
+Toggle the Active switch to ON
+The webhook is now listening for new contacts
+
+Node Descriptions
+
+HubSpot Trigger: Webhook that fires when new contacts are created
+HubSpot Recently Created: Fetches details of recently created contacts
+Loop Over Items: Processes contacts in batches of 6
+Explorium Match Prospects: Finds matching person in Explorium database
+Filter: Validates successful matches
+Extract Prospect IDs: Collects matched prospect identifiers
+Enrich Contacts Information: Fetches emails and phone numbers
+Enrich Profiles: Gets additional profile data (optional)
+Merge: Combines all enrichment results
+Split Out: Separates individual enriched records
+Update HubSpot: Updates contact with new information
+
+Data Mapping Logic
+
+The workflow maps Explorium data to HubSpot properties:
+
+| Explorium Data                 | HubSpot Property   | Notes                         |
+| ------------------------------ | ------------------ | ----------------------------- |
+| professions_email            | email            | Primary professional email    |
+| emails[].address             | work_email       | All email addresses joined    |
+| phone_numbers[].phone_number | phone            | All phones joined with commas |
+| mobile_phone                 | phone (fallback) | Used if no other phones found |
+
+Data Processing
+
+The workflow handles complex data scenarios:
+
+Multiple emails**: Joins all discovered emails with commas
+Phone numbers**: Combines all phone numbers into a single field
+Missing data**: Uses "null" as placeholder for empty fields
+Name parsing**: Cleans sample data and special characters
+
+Usage & Operation
+
+Automatic Processing
+
+Once activated:
+
+Every new contact triggers the webhook immediately
+Contact is enriched within seconds
+HubSpot record is updated automatically
+Process repeats for each new contact
+
+Manual Testing
+
+To test the workflow:
+
+Use the pinned test data in the HubSpot Trigger node, or
+Create a test contact in HubSpot
+Monitor the execution in n8n
+Verify the contact was updated in HubSpot
+
+Monitoring Performance
+
+Track workflow health:
+
+Go to Executions in n8n
+Filter by this workflow
+Monitor success rates
+Review any failed executions
+Check webhook delivery in HubSpot
+
+Troubleshooting
+
+Common Issues
+
+Webhook not triggering
+
+Verify webhook subscription is active in HubSpot
+Check the webhook URL is correct and accessible
+Ensure workflow is activated in n8n
+Test webhook delivery in HubSpot developers portal
+
+Contacts not matching
+
+Verify contact has firstname, lastname, and company
+Check for typos or abbreviations in company names
+Some individuals may not be in Explorium's database
+Email matching improves accuracy significantly
+
+Updates failing in HubSpot
+
+Check API token has contact write permissions
+Verify property names exist in HubSpot
+Ensure rate limits haven't been exceeded
+Check for validation rules on properties
+
+Missing enrichment data
+
+Not all prospects have all data types
+Phone numbers may be less available than emails
+Profile enrichment is optional and may not always return data
+
+Error Handling
+
+Built-in error resilience:
+
+Failed matches don't block other contacts
+Each batch processes independently
+Partial enrichment is possible
+All errors are logged for review
+
+Debugging Tips
+
+Check webhook logs: HubSpot shows delivery attempts
+Review executions: n8n logs show detailed error messages
+Test with pinned data: Use the sample data for isolated testing
+Verify API responses: Check Explorium API returns expected data
+
+Best Practices
+
+Data Quality
+
+Complete contact records: Ensure name and company are populated
+Standardize company names: Use official names, not abbreviations
+Include existing emails: Improves match accuracy
+Regular data hygiene: Clean up test and invalid contacts
+
+Performance Optimization
+
+Batch size: 6 is optimal for rate limits
+Webhook reliability: Monitor delivery success
+API quotas: Track usage in both platforms
+Execution history: Regularly clean old executions
+
+Compliance & Privacy
+
+GDPR compliance: Ensure lawful basis for enrichment
+Data minimization: Only enrich necessary fields
+Access controls: Limit who can modify enriched data
+Audit trail: Document enrichment for compliance
+
+Customization Options
+
+Additional Enrichment
+
+Extend with more Explorium data:
+
+Job titles and departments
+Social media profiles
+Professional experience
+Skills and interests
+Company information
+
+Enhanced Processing
+
+Add workflow logic for:
+
+Lead scoring based on enrichment
+Routing based on data quality
+Notifications for high-value matches
+Custom field mapping
+
+Integration Extensions
+
+Connect to other systems:
+
+Sync enriched data to CRM
+Trigger marketing automation
+Update data warehouse
+Send notifications to Slack
+
+API Considerations
+
+HubSpot Limits
+
+API calls**: Monitor daily limits
+Webhook payload**: Max 200 contacts per trigger
+Rate limits**: 100 requests per 10 seconds
+Property limits**: Max 1000 custom properties
+
+Explorium Limits
+
+Match API**: Batched for efficiency
+Enrichment calls**: Two parallel enrichments
+Rate limits**: Based on your plan
+Data freshness**: Real-time matching
+
+Architecture Considerations
+
+This workflow integrates with:
+
+HubSpot workflows and automation
+Marketing campaigns and sequences
+Sales engagement tools
+Reporting and analytics
+Other enrichment services
+
+Security Best Practices
+
+Webhook validation**: Verify requests are from HubSpot
+Token security**: Rotate API tokens regularly
+Access control**: Limit workflow modifications
+Data encryption**: All API calls use HTTPS
+Audit logging**: Track all enrichments
+
+Advanced Configuration
+
+Custom Field Mapping
+
+Modify the Update HubSpot node to map to custom properties:
+
+// Example custom mapping
+{
+  "custom_mobile": "{{ $json.data.mobile_phone }}",
+  "custom_linkedin": "{{ $json.data.linkedin_url }}",
+  "enrichment_date": "{{ $now.toISO() }}"
+}
+
+Conditional Processing
+
+Add logic to process only certain contacts:
+
+Filter by contact source
+Check for specific properties
+Validate email domains
+Exclude test contacts
+
+Support Resources
+
+For assistance:
+
+n8n issues**: Check n8n documentation and forums
+HubSpot API**: Reference HubSpot developers documentation
+Explorium API**: Contact Explorium support
+Webhook issues**: Use HubSpot webhook testing tools
+
+🔧 NODES USED
+------------------------------
+• HTTP Request - Categories: Core Nodes, Development
+• HubSpot - Categories: Sales
+• Salesforce - Categories: Sales, Communication
+• Code - Categories: Core Nodes, Development
+
+Total Nodes: 4
+
+📊 RAW DATA (JSON)
+------------------------------
+{
+  "id": 4839,
+  "name": "Automate Contact Enrichment from HubSpot to Salesforce using Explorium.ai",
+  "totalViews": 187,
+  "purchaseUrl": null,
+  "user": {
+    "id": 94902,
+    "name": "explorium",
+    "username": "explorium",
+    "bio": "Explorium empowers businesses to build high-performance GTM agents with specialized data infrastructure. Our seamless API integrations and high-quality data drive faster agent development and better results. With years of experience and robust data sets, we deliver context-aware solutions, helping AI agents achieve human-level support.\nExplorium is the essential data partner for teams building agent-driven technologies.",
+    "verified": true,
+    "links": "[\"https://explorium.ai\"]",
+    "avatar": "https://gravatar.com/avatar/688391f68b95bca17d847fde8a69c9f75ba641d3b9fbb2708456fc53dcd813e0?r=pg&d=retro&size=200"
+  },
+  "description": "HubSpot Contact Enrichment with Explorium\n\nTemplate\n\nDownload the following json file and import it to a new n8n workflow:\n\nhubspot\\_flow.json\n\nOverview\n\nThis n8n workflow monitors your HubSpot instance for newly created contacts and automatically enriches them with additional contact information. When a contact is created, the workflow:\n\nDetects the new contact via HubSpot webhook trigger\nRetrieves recent contact details from HubSpot\nMatches the contact against Explorium's database using name, company, and email\nEnriches the contact with professional emails and phone numbers\nUpdates the HubSpot contact record with discovered information\n\nThis automation ensures your sales and marketing teams have complete contact information, improving outreach success rates and data quality.\n\nKey Features\n\nReal-time Webhook Trigger**: Instantly processes new contacts as they're created\nIntelligent Matching**: Uses multiple data points (name, company, email) for accurate matching\nComprehensive Enrichment**: Adds both professional and work emails, plus phone numbers\nBatch Processing**: Efficiently handles multiple contacts to optimize API usage\nSmart Data Mapping**: Intelligently maps multiple emails and phone numbers\nProfile Enrichment**: Optional additional enrichment for deeper contact insights\nError Resilience**: Continues processing other contacts if some fail to match\n\nPrerequisites\n\nBefore setting up this workflow, ensure you have:\n\nn8n instance (self-hosted or cloud)\nHubSpot account with:\n   Developer API access (for webhooks)\n   Private App or OAuth2 app created\n   Contact object permissions (read/write)\nExplorium API credentials (Bearer token) - Get explorium api key\nUnderstanding of HubSpot contact properties\n\nHubSpot Requirements\n\nRequired Contact Properties\n\nThe workflow uses these HubSpot contact properties:\n\nfirstname - Contact's first name\nlastname - Contact's last name\ncompany - Associated company name\nemail - Primary email (read and updated)\nwork_email - Work email (updated by workflow)\nphone - Phone number (updated by workflow)\n\nAPI Access Setup\n\nCreate a Private App in HubSpot:\n   Navigate to Settings → Integrations → Private Apps\n   Create new app with Contact read/write scopes\n   Copy the Access Token\n\nSet up Webhooks (for Developer API):\n   Create app in HubSpot Developers portal\n   Configure webhook for contact.creation events\n   Note the App ID and Developer API Key\n\nCustom Properties (Optional)\n\nConsider creating custom properties for:\n\nMultiple email addresses\nMobile vs. office phone numbers\nData enrichment timestamps\nMatch confidence scores\n\nInstallation & Setup\n\nStep 1: Import the Workflow\n\nCopy the workflow JSON from the template\nIn n8n: Navigate to Workflows → Add Workflow → Import from File\nPaste the JSON and click Import\n\nStep 2: Configure HubSpot Developer API (Webhook)\n\nClick on the HubSpot Trigger node\nUnder Credentials, click Create New\nEnter your HubSpot Developer credentials:\n   App ID: From your HubSpot app\n   Developer API Key: From your developer account\n   Client Secret: From your app settings\nSave as \"HubSpot Developer account\"\n\nStep 3: Configure HubSpot App Token\n\nClick on the HubSpot Recently Created node\nUnder Credentials, click Create New (App Token)\nEnter your Private App access token\nSave as \"HubSpot App Token account\"\nApply the same credentials to the Update HubSpot node\n\nStep 4: Configure Explorium API Credentials\n\nClick on the Explorium Match Prospects node\nUnder Credentials, click Create New (HTTP Header Auth)\nConfigure the authentication:\n   Name: Authorization\n   Value: Bearer YOUR_EXPLORIUM_API_TOKEN\nSave as \"Header Auth Connection\"\nApply to all Explorium nodes:\n   Explorium Enrich Contacts Information\n   Explorium Enrich Profiles\n\nStep 5: Configure Webhook Subscription\n\nIn HubSpot Developers portal:\n   Go to your app's webhook settings\n   Add subscription for contact.creation events\n   Set the target URL from the HubSpot Trigger node\n   Activate the subscription\n\nStep 6: Activate the Workflow\n\nSave the workflow\nToggle the Active switch to ON\nThe webhook is now listening for new contacts\n\nNode Descriptions\n\nHubSpot Trigger: Webhook that fires when new contacts are created\nHubSpot Recently Created: Fetches details of recently created contacts\nLoop Over Items: Processes contacts in batches of 6\nExplorium Match Prospects: Finds matching person in Explorium database\nFilter: Validates successful matches\nExtract Prospect IDs: Collects matched prospect identifiers\nEnrich Contacts Information: Fetches emails and phone numbers\nEnrich Profiles: Gets additional profile data (optional)\nMerge: Combines all enrichment results\nSplit Out: Separates individual enriched records\nUpdate HubSpot: Updates contact with new information\n\nData Mapping Logic\n\nThe workflow maps Explorium data to HubSpot properties:\n\n| Explorium Data                 | HubSpot Property   | Notes                         |\n| ------------------------------ | ------------------ | ----------------------------- |\n| professions_email            | email            | Primary professional email    |\n| emails[].address             | work_email       | All email addresses joined    |\n| phone_numbers[].phone_number | phone            | All phones joined with commas |\n| mobile_phone                 | phone (fallback) | Used if no other phones found |\n\nData Processing\n\nThe workflow handles complex data scenarios:\n\nMultiple emails**: Joins all discovered emails with commas\nPhone numbers**: Combines all phone numbers into a single field\nMissing data**: Uses \"null\" as placeholder for empty fields\nName parsing**: Cleans sample data and special characters\n\nUsage & Operation\n\nAutomatic Processing\n\nOnce activated:\n\nEvery new contact triggers the webhook immediately\nContact is enriched within seconds\nHubSpot record is updated automatically\nProcess repeats for each new contact\n\nManual Testing\n\nTo test the workflow:\n\nUse the pinned test data in the HubSpot Trigger node, or\nCreate a test contact in HubSpot\nMonitor the execution in n8n\nVerify the contact was updated in HubSpot\n\nMonitoring Performance\n\nTrack workflow health:\n\nGo to Executions in n8n\nFilter by this workflow\nMonitor success rates\nReview any failed executions\nCheck webhook delivery in HubSpot\n\nTroubleshooting\n\nCommon Issues\n\nWebhook not triggering\n\nVerify webhook subscription is active in HubSpot\nCheck the webhook URL is correct and accessible\nEnsure workflow is activated in n8n\nTest webhook delivery in HubSpot developers portal\n\nContacts not matching\n\nVerify contact has firstname, lastname, and company\nCheck for typos or abbreviations in company names\nSome individuals may not be in Explorium's database\nEmail matching improves accuracy significantly\n\nUpdates failing in HubSpot\n\nCheck API token has contact write permissions\nVerify property names exist in HubSpot\nEnsure rate limits haven't been exceeded\nCheck for validation rules on properties\n\nMissing enrichment data\n\nNot all prospects have all data types\nPhone numbers may be less available than emails\nProfile enrichment is optional and may not always return data\n\nError Handling\n\nBuilt-in error resilience:\n\nFailed matches don't block other contacts\nEach batch processes independently\nPartial enrichment is possible\nAll errors are logged for review\n\nDebugging Tips\n\nCheck webhook logs: HubSpot shows delivery attempts\nReview executions: n8n logs show detailed error messages\nTest with pinned data: Use the sample data for isolated testing\nVerify API responses: Check Explorium API returns expected data\n\nBest Practices\n\nData Quality\n\nComplete contact records: Ensure name and company are populated\nStandardize company names: Use official names, not abbreviations\nInclude existing emails: Improves match accuracy\nRegular data hygiene: Clean up test and invalid contacts\n\nPerformance Optimization\n\nBatch size: 6 is optimal for rate limits\nWebhook reliability: Monitor delivery success\nAPI quotas: Track usage in both platforms\nExecution history: Regularly clean old executions\n\nCompliance & Privacy\n\nGDPR compliance: Ensure lawful basis for enrichment\nData minimization: Only enrich necessary fields\nAccess controls: Limit who can modify enriched data\nAudit trail: Document enrichment for compliance\n\nCustomization Options\n\nAdditional Enrichment\n\nExtend with more Explorium data:\n\nJob titles and departments\nSocial media profiles\nProfessional experience\nSkills and interests\nCompany information\n\nEnhanced Processing\n\nAdd workflow logic for:\n\nLead scoring based on enrichment\nRouting based on data quality\nNotifications for high-value matches\nCustom field mapping\n\nIntegration Extensions\n\nConnect to other systems:\n\nSync enriched data to CRM\nTrigger marketing automation\nUpdate data warehouse\nSend notifications to Slack\n\nAPI Considerations\n\nHubSpot Limits\n\nAPI calls**: Monitor daily limits\nWebhook payload**: Max 200 contacts per trigger\nRate limits**: 100 requests per 10 seconds\nProperty limits**: Max 1000 custom properties\n\nExplorium Limits\n\nMatch API**: Batched for efficiency\nEnrichment calls**: Two parallel enrichments\nRate limits**: Based on your plan\nData freshness**: Real-time matching\n\nArchitecture Considerations\n\nThis workflow integrates with:\n\nHubSpot workflows and automation\nMarketing campaigns and sequences\nSales engagement tools\nReporting and analytics\nOther enrichment services\n\nSecurity Best Practices\n\nWebhook validation**: Verify requests are from HubSpot\nToken security**: Rotate API tokens regularly\nAccess control**: Limit workflow modifications\nData encryption**: All API calls use HTTPS\nAudit logging**: Track all enrichments\n\nAdvanced Configuration\n\nCustom Field Mapping\n\nModify the Update HubSpot node to map to custom properties:\n\n// Example custom mapping\n{\n  \"custom_mobile\": \"{{ $json.data.mobile_phone }}\",\n  \"custom_linkedin\": \"{{ $json.data.linkedin_url }}\",\n  \"enrichment_date\": \"{{ $now.toISO() }}\"\n}\n\nConditional Processing\n\nAdd logic to process only certain contacts:\n\nFilter by contact source\nCheck for specific properties\nValidate email domains\nExclude test contacts\n\nSupport Resources\n\nFor assistance:\n\nn8n issues**: Check n8n documentation and forums\nHubSpot API**: Reference HubSpot developers documentation\nExplorium API**: Contact Explorium support\nWebhook issues**: Use HubSpot webhook testing tools",
+  "createdAt": "2025-06-10T06:40:34.915Z",
+  "nodes": [
+    {
+      "id": 19,
+      "icon": "file:httprequest.svg",
+      "name": "n8n-nodes-base.httpRequest",
+      "codex": {
+        "data": {
+          "alias": [
+            "API",
+            "Request",
+            "URL",
+            "Build",
+            "cURL"
+          ],
+          "resources": {
+            "generic": [
+              {
+                "url": "https://n8n.io/blog/2021-the-year-to-automate-the-new-you-with-n8n/",
+                "icon": "☀️",
+                "label": "2021: The Year to Automate the New You with n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/why-business-process-automation-with-n8n-can-change-your-daily-life/",
+                "icon": "🧬",
+                "label": "Why business process automation with n8n can change your daily life"
+              },
+              {
+                "url": "https://n8n.io/blog/automatically-pulling-and-visualizing-data-with-n8n/",
+                "icon": "📈",
+                "label": "Automatically pulling and visualizing data with n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/learn-how-to-automatically-cross-post-your-content-with-n8n/",
+                "icon": "✍️",
+                "label": "Learn how to automatically cross-post your content with n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/automatically-adding-expense-receipts-to-google-sheets-with-telegram-mindee-twilio-and-n8n/",
+                "icon": "🧾",
+                "label": "Automatically Adding Expense Receipts to Google Sheets with Telegram, Mindee, Twilio, and n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/running-n8n-on-ships-an-interview-with-maranics/",
+                "icon": "🛳",
+                "label": "Running n8n on ships: An interview with Maranics"
+              },
+              {
+                "url": "https://n8n.io/blog/what-are-apis-how-to-use-them-with-no-code/",
+                "icon": " 🪢",
+                "label": "What are APIs and how to use them with no code"
+              },
+              {
+                "url": "https://n8n.io/blog/5-tasks-you-can-automate-with-notion-api/",
+                "icon": "⚡️",
+                "label": "5 tasks you can automate with the new Notion API "
+              },
+              {
+                "url": "https://n8n.io/blog/world-poetry-day-workflow/",
+                "icon": "📜",
+                "label": "Celebrating World Poetry Day with a daily poem in Telegram"
+              },
+              {
+                "url": "https://n8n.io/blog/automate-google-apps-for-productivity/",
+                "icon": "💡",
+                "label": "15 Google apps you can combine and automate to increase productivity"
+              },
+              {
+                "url": "https://n8n.io/blog/automate-designs-with-bannerbear-and-n8n/",
+                "icon": "🎨",
+                "label": "Automate Designs with Bannerbear and n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/how-uproc-scraped-a-multi-page-website-with-a-low-code-workflow/",
+                "icon": " 🕸️",
+                "label": "How uProc scraped a multi-page website with a low-code workflow"
+              },
+              {
+                "url": "https://n8n.io/blog/building-an-expense-tracking-app-in-10-minutes/",
+                "icon": "📱",
+                "label": "Building an expense tracking app in 10 minutes"
+              },
+              {
+                "url": "https://n8n.io/blog/5-workflow-automations-for-mattermost-that-we-love-at-n8n/",
+                "icon": "🤖",
+                "label": "5 workflow automations for Mattermost that we love at n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/how-to-use-the-http-request-node-the-swiss-army-knife-for-workflow-automation/",
+                "icon": "🧰",
+                "label": "How to use the HTTP Request Node - The Swiss Army Knife for Workflow Automation"
+              },
+              {
+                "url": "https://n8n.io/blog/learn-how-to-use-webhooks-with-mattermost-slash-commands/",
+                "icon": "🦄",
+                "label": "Learn how to use webhooks with Mattermost slash commands"
+              },
+              {
+                "url": "https://n8n.io/blog/how-a-membership-development-manager-automates-his-work-and-investments/",
+                "icon": "📈",
+                "label": "How a Membership Development Manager automates his work and investments"
+              },
+              {
+                "url": "https://n8n.io/blog/a-low-code-bitcoin-ticker-built-with-questdb-and-n8n-io/",
+                "icon": "📈",
+                "label": "A low-code bitcoin ticker built with QuestDB and n8n.io"
+              },
+              {
+                "url": "https://n8n.io/blog/how-to-set-up-a-ci-cd-pipeline-with-no-code/",
+                "icon": "🎡",
+                "label": "How to set up a no-code CI/CD pipeline with GitHub and TravisCI"
+              },
+              {
+                "url": "https://n8n.io/blog/automations-for-activists/",
+                "icon": "✨",
+                "label": "How Common Knowledge use workflow automation for activism"
+              },
+              {
+                "url": "https://n8n.io/blog/creating-scheduled-text-affirmations-with-n8n/",
+                "icon": "🤟",
+                "label": "Creating scheduled text affirmations with n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/how-goomer-automated-their-operations-with-over-200-n8n-workflows/",
+                "icon": "🛵",
+                "label": "How Goomer automated their operations with over 200 n8n workflows"
+              },
+              {
+                "url": "https://n8n.io/blog/aws-workflow-automation/",
+                "label": "7 no-code workflow automations for Amazon Web Services"
+              }
+            ],
+            "primaryDocumentation": [
+              {
+                "url": "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/"
+              }
+            ]
+          },
+          "categories": [
+            "Development",
+            "Core Nodes"
+          ],
+          "nodeVersion": "1.0",
+          "codexVersion": "1.0",
+          "subcategories": {
+            "Core Nodes": [
+              "Helpers"
+            ]
+          }
+        }
+      },
+      "group": "[\"output\"]",
+      "defaults": {
+        "name": "HTTP Request",
+        "color": "#0004F5"
+      },
+      "iconData": {
+        "type": "file",
+        "fileBuffer": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik00MCAyMEM0MCA4Ljk1MzE0IDMxLjA0NjkgMCAyMCAwQzguOTUzMTQgMCAwIDguOTUzMTQgMCAyMEMwIDMxLjA0NjkgOC45NTMxNCA0MCAyMCA0MEMzMS4wNDY5IDQwIDQwIDMxLjA0NjkgNDAgMjBaTTIwIDM2Ljk0NThDMTguODg1MiAzNi45NDU4IDE3LjEzNzggMzUuOTY3IDE1LjQ5OTggMzIuNjk4NUMxNC43OTY0IDMxLjI5MTggMTQuMTk2MSAyOS41NDMxIDEzLjc1MjYgMjcuNjg0N0gyNi4xODk4QzI1LjgwNDUgMjkuNTQwMyAyNS4yMDQ0IDMxLjI5MDEgMjQuNTAwMiAzMi42OTg1QzIyLjg2MjIgMzUuOTY3IDIxLjExNDggMzYuOTQ1OCAyMCAzNi45NDU4Wk0xMi45MDY0IDIwQzEyLjkwNjQgMjEuNjA5NyAxMy4wMDg3IDIzLjE2NCAxMy4yMDAzIDI0LjYzMDVIMjYuNzk5N0MyNi45OTEzIDIzLjE2NCAyNy4wOTM2IDIxLjYwOTcgMjcuMDkzNiAyMEMyNy4wOTM2IDE4LjM5MDMgMjYuOTkxMyAxNi44MzYgMjYuNzk5NyAxNS4zNjk1SDEzLjIwMDNDMTMuMDA4NyAxNi44MzYgMTIuOTA2NCAxOC4zOTAzIDEyLjkwNjQgMjBaTTIwIDMuMDU0MTlDMjEuMTE0OSAzLjA1NDE5IDIyLjg2MjIgNC4wMzA3OCAyNC41MDAxIDcuMzAwMzlDMjUuMjA2NiA4LjcxNDA4IDI1LjgwNzIgMTAuNDA2NyAyNi4xOTIgMTIuMzE1M0gxMy43NTAxQzE0LjE5MzMgMTAuNDA0NyAxNC43OTQyIDguNzEyNTQgMTUuNDk5OCA3LjMwMDY0QzE3LjEzNzcgNC4wMzA4MyAxOC44ODUxIDMuMDU0MTkgMjAgMy4wNTQxOVpNMzAuMTQ3OCAyMEMzMC4xNDc4IDE4LjQwOTkgMzAuMDU0MyAxNi44NjE3IDI5LjgyMjcgMTUuMzY5NUgzNi4zMDQyQzM2LjcyNTIgMTYuODQyIDM2Ljk0NTggMTguMzk2NCAzNi45NDU4IDIwQzM2Ljk0NTggMjEuNjAzNiAzNi43MjUyIDIzLjE1OCAzNi4zMDQyIDI0LjYzMDVIMjkuODIyN0MzMC4wNTQzIDIzLjEzODMgMzAuMTQ3OCAyMS41OTAxIDMwLjE0NzggMjBaTTI2LjI3NjcgNC4yNTUxMkMyNy42MzY1IDYuMzYwMTkgMjguNzExIDkuMTMyIDI5LjM3NzQgMTIuMzE1M0gzNS4xMDQ2QzMzLjI1MTEgOC42NjggMzAuMTA3IDUuNzgzNDYgMjYuMjc2NyA0LjI1NTEyWk0xMC42MjI2IDEyLjMxNTNINC44OTI5M0M2Ljc1MTQ3IDguNjY3ODQgOS44OTM1MSA1Ljc4MzQxIDEzLjcyMzIgNC4yNTUxM0MxMi4zNjM1IDYuMzYwMjEgMTEuMjg5IDkuMTMyMDEgMTAuNjIyNiAxMi4zMTUzWk0zLjA1NDE5IDIwQzMuMDU0MTkgMjEuNjAzIDMuMjc3NDMgMjMuMTU3NSAzLjY5NDg0IDI0LjYzMDVIMTAuMTIxN0M5Ljk0NjE5IDIzLjE0MiA5Ljg1MjIyIDIxLjU5NDMgOS44NTIyMiAyMEM5Ljg1MjIyIDE4LjQwNTcgOS45NDYxOSAxNi44NTggMTAuMTIxNyAxNS4zNjk1SDMuNjk0ODRDMy4yNzc0MyAxNi44NDI1IDMuMDU0MTkgMTguMzk3IDMuMDU0MTkgMjBaTTI2LjI3NjYgMzUuNzQyN0MyNy42MzY1IDMzLjYzOTMgMjguNzExIDMwLjg2OCAyOS4zNzc0IDI3LjY4NDdIMzUuMTA0NkMzMy4yNTEgMzEuMzMyMiAzMC4xMDY4IDM0LjIxNzkgMjYuMjc2NiAzNS43NDI3Wk0xMy43MjM0IDM1Ljc0MjdDOS44OTM2OSAzNC4yMTc5IDYuNzUxNTUgMzEuMzMyNCA0Ljg5MjkzIDI3LjY4NDdIMTAuNjIyNkMxMS4yODkgMzAuODY4IDEyLjM2MzUgMzMuNjM5MyAxMy43MjM0IDM1Ljc0MjdaIiBmaWxsPSIjM0E0MkU5Ii8+Cjwvc3ZnPgo="
+      },
+      "displayName": "HTTP Request",
+      "typeVersion": 4,
+      "nodeCategories": [
+        {
+          "id": 5,
+          "name": "Development"
+        },
+        {
+          "id": 9,
+          "name": "Core Nodes"
+        }
+      ]
+    },
+    {
+      "id": 76,
+      "icon": "file:hubspot.svg",
+      "name": "n8n-nodes-base.hubspot",
+      "codex": {
+        "data": {
+          "resources": {
+            "generic": [
+              {
+                "url": "https://n8n.io/blog/how-to-sync-data-between-two-systems/",
+                "icon": "🏬",
+                "label": "How to synchronize data between two systems (one-way vs. two-way sync"
+              },
+              {
+                "url": "https://n8n.io/blog/how-to-get-started-with-crm-automation-and-no-code-workflow-ideas/",
+                "icon": "👥",
+                "label": "How to get started with CRM automation (with 3 no-code workflow ideas"
+              },
+              {
+                "url": "https://n8n.io/blog/your-business-doesnt-need-you-to-operate/",
+                "icon": " 🖥️",
+                "label": "Hey founders! Your business doesn't need you to operate"
+              },
+              {
+                "url": "https://n8n.io/blog/benefits-of-automation-and-n8n-an-interview-with-hubspots-hugh-durkin/",
+                "icon": "🎖",
+                "label": "Benefits of automation and n8n: An interview with HubSpot's Hugh Durkin"
+              },
+              {
+                "url": "https://n8n.io/blog/how-goomer-automated-their-operations-with-over-200-n8n-workflows/",
+                "icon": "🛵",
+                "label": "How Goomer automated their operations with over 200 n8n workflows"
+              }
+            ],
+            "primaryDocumentation": [
+              {
+                "url": "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.hubspot/"
+              }
+            ],
+            "credentialDocumentation": [
+              {
+                "url": "https://docs.n8n.io/integrations/builtin/credentials/hubspot/"
+              }
+            ]
+          },
+          "categories": [
+            "Sales"
+          ],
+          "nodeVersion": "1.0",
+          "codexVersion": "1.0"
+        }
+      },
+      "group": "[\"output\"]",
+      "defaults": {
+        "name": "HubSpot"
+      },
+      "iconData": {
+        "type": "file",
+        "fileBuffer": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBmaWxsPSIjZmZmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiB2aWV3Qm94PSIwIDAgNjIuODgzIDY5Ljg4MyI+PHVzZSB4bGluazpocmVmPSIjYSIgeD0iMi40NDIiIHk9IjIuNDQyIi8+PHN5bWJvbCBpZD0iYSIgb3ZlcmZsb3c9InZpc2libGUiPjxwYXRoIGZpbGw9IiNmODc2MWYiIGZpbGwtcnVsZT0ibm9uemVybyIgc3Ryb2tlPSJub25lIiBkPSJNNTUuNTA0IDMwLjQwMWExNi4yNiAxNi4yNiAwIDAgMC01LjkwNC01Ljg2NGMtMS44NjUtMS4wODQtMy43OTQtMS43NzMtNS45NzItMi4wN3YtNy43OThhNS43MSA1LjcxIDAgMCAwIDMuNTI1LTUuMzU3IDUuODYgNS44NiAwIDAgMC01Ljg1OS01Ljg4OSA1LjkxIDUuOTEgMCAwIDAtNS45MDggNS44ODljMCAyLjM5MyAxLjI3IDQuNDM0IDMuNDUyIDUuMzU3djcuNzU0YTE3IDE3IDAgMCAwLTUuMTk1IDEuNjMxTDEyLjc2OSA4LjI0N2MuMTQ2LS41NTIuMjczLTEuMTIzLjI3My0xLjcyNEE2LjUyIDYuNTIgMCAwIDAgNi41MTkgMCA2LjUyIDYuNTIgMCAwIDAgMCA2LjUyNGE2LjUyMyA2LjUyMyAwIDAgMCA2LjUyNCA2LjUyNCA2LjQ3IDYuNDcgMCAwIDAgMy4zNS0uOTUybDEuMzY3IDEuMDM1IDE4LjcyNiAxMy41MDFjLS45OTEuOTA4LTEuOTE0IDEuOTQzLTIuNjUxIDMuMTA1LTEuNDk0IDIuMzY4LTIuNDA3IDQuOTcxLTIuNDA3IDcuODEzdi41ODZhMTYuNCAxNi40IDAgMCAwIDEuMDI1IDUuNjQ1QzI2LjUgNDUuMzI0IDI3LjMzIDQ2LjczIDI4LjM2MSA0OGwtNi4yMjEgNi4yMzVhNS4wMSA1LjAxIDAgMCAwLTUuMjk4IDEuMTYyYy0uOTQ3Ljk0Mi0xLjQ4IDIuMjI3LTEuNDc1IDMuNTY1cy41MjcgMi42MTIgMS40NzkgMy41NjQgMi4yMjcgMS40OCAzLjU2NSAxLjQ4YTUgNSAwIDAgMCAzLjU2NS0xLjQ4IDUuMDUgNS4wNSAwIDAgMCAxLjQ3NS0zLjU2NCA1IDUgMCAwIDAtLjIzNC0xLjUxNGw2LjQyNi02LjQyNmExNiAxNiAwIDAgMCAyLjg1NiAxLjU2MyAxNi43IDE2LjcgMCAwIDAgNi42ODUgMS40MDZoLjQzOWExNS43NiAxNS43NiAwIDAgMCA3LjYyNy0xLjkyOSAxNS43NyAxNS43NyAwIDAgMCA1Ljk3Ny01LjYzYzEuNDk5LTIuMzkzIDIuMzE5LTUuMDQ0IDIuMzE5LTcuOTU5di0uMTQ2YzAtMi44NjYtLjY2NC01LjUwOC0yLjA1MS03Ljkzem0tNy44NDcgMTMuNDg3Yy0xLjc0MyAxLjkzOC0zLjc1IDMuMTM1LTYuMDE2IDMuMTM1aC0uNDNjLTEuMjk0IDAtMi41NjQtLjM1Ni0zLjc5OS0xLjAxMWE4LjggOC44IDAgMCAxLTMuMzMtMy4wMzJjLS44OTgtMS4yNy0xLjM4Ny0yLjY1Ni0xLjM4Ny00LjEyNnYtLjQzOWMwLTEuNDQ1LjI3OC0yLjgxNy45NzctNC4xMTEuNzQ3LTEuNDY1IDEuNzU4LTIuNTE1IDMuMTAxLTMuMzg5YTcuNiA3LjYgMCAwIDEgNC4yOTctMS4yOTRoLjE0N2MxLjQxNiAwIDIuNzY5LjI3OCA0LjAzOC45MjhhOC41NiA4LjU2IDAgMCAxIDMuMTc0IDIuODg2IDkuMiA5LjIgMCAwIDEgMS40MjEgNC4wNTNsLjAzNC45MTNjMCAxLjk4Ny0uNzYyIDMuODI4LTIuMjggNS40OTh6Ii8+PC9zeW1ib2w+PC9zdmc+"
+      },
+      "displayName": "HubSpot",
+      "typeVersion": 2,
+      "nodeCategories": [
+        {
+          "id": 2,
+          "name": "Sales"
+        }
+      ]
+    },
+    {
+      "id": 324,
+      "icon": "file:salesforce.svg",
+      "name": "n8n-nodes-base.salesforce",
+      "codex": {
+        "data": {
+          "resources": {
+            "primaryDocumentation": [
+              {
+                "url": "https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.salesforce/"
+              }
+            ],
+            "credentialDocumentation": [
+              {
+                "url": "https://docs.n8n.io/integrations/builtin/credentials/salesforce/"
+              }
+            ]
+          },
+          "categories": [
+            "Sales",
+            "Communication"
+          ],
+          "nodeVersion": "1.0",
+          "codexVersion": "1.0"
+        }
+      },
+      "group": "[\"output\"]",
+      "defaults": {
+        "name": "Salesforce"
+      },
+      "iconData": {
+        "type": "file",
+        "fileBuffer": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBmaWxsPSIjZmZmIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiB2aWV3Qm94PSIwIDAgNzUgNTMiPjx1c2UgeGxpbms6aHJlZj0iI2EiIHg9Ii41IiB5PSIuNSIvPjxzeW1ib2wgaWQ9ImEiIG92ZXJmbG93PSJ2aXNpYmxlIj48ZyBmaWxsLXJ1bGU9Im5vbnplcm8iIHN0cm9rZT0ibm9uZSI+PHBhdGggZmlsbD0iIzAwYTFlMCIgZD0iTTMwLjc3NyA1LjY1M2MyLjQtMi40NzYgNS43Mi00LjA0IDkuMzkyLTQuMDQgNC44OTUgMCA5LjEzNiAyLjczMiAxMS40MTIgNi43NzNhMTUuNyAxNS43IDAgMCAxIDYuNDYtMS4zNjZjOC44MjMgMCAxNS45MzcgNy4yIDE1LjkzNyAxNi4wOHMtNy4xNDMgMTYuMDg4LTE1LjkzNyAxNi4wODhjLTEuMDggMC0yLjEzNC0uMTE0LTMuMTMtLjMxM2ExMS42OCAxMS42OCAwIDAgMS0xMC4yIDUuOTc3IDExLjc1IDExLjc1IDAgMCAxLTUuMDk0LTEuMTY3Yy0yLjAyIDQuNzUzLTYuNzQ1IDguMS0xMi4yMzggOC4xLTUuNzIgMC0xMC42MTUtMy42MTQtMTIuNDk0LTguNy0uODMzLjE3MS0xLjY4Mi4yNTctMi41MzMuMjU2QzUuNTIyIDQzLjM0MSAwIDM3Ljc2MyAwIDMwLjg0N2ExMi41MiAxMi41MiAwIDAgMSA2LjE3Ni0xMC44MTUgMTQuMSAxNC4xIDAgMCAxLTEuMTk1LTUuNzJDNC45NTUgNi40MzIgMTEuNDE1IDAgMTkuMzI1IDBhMTQuMzQgMTQuMzQgMCAwIDEgMTEuNDQxIDUuNjYzIi8+PHBhdGggZD0ibTEwLjcxMiAyNi44NTYuMzEzLS44MjVjLjA1Ny0uMTQyLjE0Mi0uMDg1LjItLjA1N2wuMjU2LjE3YTMuNTMgMy41MyAwIDAgMCAxLjk2NC41N2MuNjU1IDAgMS4wOC0uMzQyIDEuMDgtLjgyNXYtLjAyOGMwLS41MTItLjYyNi0uNy0xLjM2Ni0uOTRsLS4xNy0uMDU3Yy0uOTk2LS4yODUtMi4wNzgtLjctMi4wNzgtMS45NjR2LS4wMjhjMC0xLjE5NS45NjgtMi4wNSAyLjM2Mi0yLjA1aC4xNDJjLjgyNSAwIDEuNTk0LjIyOCAyLjE2My41OTguMDU3LjAyOC4xMTQuMDg1LjA4NS4xN2wtLjMxMy44MjVjLS4wNTcuMTQyLS4yLjA1Ny0uMi4wNTdhNC4zIDQuMyAwIDAgMC0xLjkzNS0uNDg0Yy0uNTk4IDAtLjk2OC4zMTMtLjk2OC43NHYuMDI4YzAgLjQ4NC42NTUuNyAxLjM5NS45NGwuMTQyLjAyOGMuOTk2LjMxMyAyLjA1Ljc0IDIuMDUgMS45NjR2LjAyOGMwIDEuMy0uOTQgMi4xMDYtMi40NDggMi4xMDYtLjc0IDAtMS40NS0uMTE0LTIuMjItLjUxMi0uMTQyLS4wODUtLjI4NS0uMTQyLS40MjctLjI1Ni0uMDI4LS4wNTctLjA4NS0uMDg1LS4wMjgtLjJ6bTIyLjIgMCAuMzEzLS44MjVjLjA1Ny0uMTQyLjE3LS4wODUuMi0uMDU3bC4yNTYuMTdhMy41MyAzLjUzIDAgMCAwIDEuOTY0LjU3Yy42NTUgMCAxLjA4LS4zNDIgMS4wOC0uODI1di0uMDI4YzAtLjUxMi0uNjI2LS43LTEuMzY2LS45NGwtLjE3LS4wNTdjLS45OTYtLjI4NS0yLjA3OC0uNy0yLjA3OC0xLjk2NHYtLjAyOGMwLTEuMTk1Ljk2OC0yLjA1IDIuMzYyLTIuMDVoLjE0MmMuODI1IDAgMS41OTQuMjI4IDIuMTYzLjU5OC4wNTcuMDI4LjExNC4wODUuMDg1LjE3bC0uMzEzLjgyNWMtLjA1Ny4xNDItLjIuMDU3LS4yLjA1N2E0LjMgNC4zIDAgMCAwLTEuOTM1LS40ODRjLS41OTggMC0uOTY4LjMxMy0uOTY4Ljc0di4wMjhjMCAuNDg0LjY1NS43IDEuMzk1Ljk0bC4xNDIuMDI4Yy45OTYuMzEzIDIuMDUuNzQgMi4wNSAxLjk2NHYuMDI4YzAgMS4zLS45NCAyLjEwNi0yLjQ0OCAyLjEwNi0uNzQgMC0xLjQ1LS4xMTQtMi4yMi0uNTEyLS4xNDItLjA4NS0uMjg1LS4xNDItLjQyNy0uMjU2IDAtLjA1Ny0uMDU3LS4wODUtLjAyOC0uMnptMTYuNDUtMy45Yy4xMTQuNDI3LjIuODgyLjIgMS4zNjZzLS4wNTcuOTQtLjIgMS4zNjZhMi44IDIuOCAwIDAgMS0uNTcgMS4xIDIuNzUgMi43NSAwIDAgMS0uOTY4Ljc0cS0uNTk3LjI1NS0xLjM2Ni4yNTZjLS43NjkuMDAxLS45NjgtLjA4NS0xLjM2Ni0uMjU2cy0uNy0uNDI3LS45NjgtLjc0YTMgMyAwIDAgMS0uNTctMS4xYy0uMTE1LS40MTctLjItLjg4Mi0uMi0xLjM2NnMuMDU3LS45NC4yLTEuMzY2Yy4xMTQtLjQyNy4zMTMtLjc5Ny41Ny0xLjFhMi43NSAyLjc1IDAgMCAxIC45NjgtLjc0IDMuNCAzLjQgMCAwIDEgMS4zNjYtLjI4NWMuNTEyIDAgLjk2OC4wODUgMS4zNjYuMjg1LjM5OC4xNy43LjQyNy45NjguNzRhMyAzIDAgMCAxIC41NyAxLjFtLTEuMjggMS4zMzhjMC0uNzQtLjE0Mi0xLjMtLjM5OC0xLjcwOHMtLjY4My0uNTk4LTEuMjI0LS41OThjLS41NyAwLS45NjguMi0xLjIyNC41OThzLS4zOTguOTY4LS4zOTggMS43MDguMTQyIDEuMy4zOTggMS43MzZjLjI1Ni4zOTguNjU1LjU5OCAxLjIyNC41OThzLjk2OC0uMiAxLjIyNC0uNTk4Yy4yODUtLjM5OC4zOTgtLjk5Ni4zOTgtMS43MzZtMTEuNjk3IDIuMTM0LjMxMy44NTRjLjAyOC4xMTQtLjA1Ny4xNDItLjA1Ny4xNDItLjQ4NC4yLTEuMTM4LjMxMy0xLjc5My4zMTNxLTEuNjUgMC0yLjUwNC0uOTRjLS44NTQtLjk0LS44NTQtMS40OC0uODU0LTIuNTMzIDAtLjQ4NC4wNTctLjk0LjItMS4zNjZzLjM0Mi0uNzk3LjYyNi0xLjFhMyAzIDAgMCAxIDEuMDI1LS43NCAzLjYgMy42IDAgMCAxIDEuNDIzLS4yODUgOCA4IDAgMCAxIC45MzkuMDU3Yy4yODUuMDU3LjY4My4xNDIuODU0LjIyOC4wMjggMCAuMTE0LjA1Ny4wODUuMTQybC0uMzEzLjg1NGMtLjA1Ny4xNDItLjE0Mi4wODUtLjE0Mi4wODVhNCA0IDAgMCAwLTEuMzM4LS4yYy0uNjI2IDAtMS4xLjItMS4zOTUuNjI2LS4zMTMuMzk4LS40ODQuOTQtLjQ4NCAxLjY4IDAgLjc5Ny4yIDEuMzY2LjU0IDEuNzM2cy44MjUuNTQgMS40NS41NGMuMjU2IDAgLjQ4NC0uMDI4LjY4My0uMDU3cy4zOTgtLjA4NS41OTgtLjE3Yy0uMDI4LjA1Ny4wODUuMDI4LjE0Mi4xNDJ6bTYuNDYtMy43MjhjLjI4NS45NjguMTQyIDEuNzkzLjExNCAxLjg1IDAgLjExNC0uMTE0LjExNC0uMTE0LjExNGgtNC4yOTdjLjAyOC42NTUuMTcgMS4xLjUxMiAxLjQyMy4zMTMuMzEzLjc5Ny41MTIgMS40OC41MTIgMS4wMjUgMCAxLjQ1LS4yIDEuNzY1LS4zMTMgMCAwIC4xMTQtLjAyOC4xNy4wODVsLjI4NS43OTdjLjA1Ny4xNDIgMCAuMTctLjAyOC4yLS4yNTYuMTQyLS45LjQyNy0yLjE2My40MjctLjU5OCAwLTEuMTM4LS4wODUtMS41NjUtLjI1NnMtLjc5Ny0uMzk4LTEuMDgtLjctLjQ4NC0uNjgzLS42MjYtMS4wOGMtLjE0Mi0uNDI3LS4yLS44ODItLjItMS4zNjZzLjA1Ny0uOTQuMi0xLjM2NmMuMTE0LS40MjcuMzEzLS43OTcuNTctMS4xcy41OTgtLjU3Ljk5Ni0uNzRjLjM5OC0uMi44ODItLjI4NSAxLjQyMy0uMjg1LjQ1NSAwIC44ODIuMDg1IDEuMjI0LjI1Ni4yNTYuMTE0LjU0LjMxMy44MjUuNjI2LjE0Mi4xMTQuMzk4LjU0LjUxMi45NHptLTQuMjcuOWgzLjA0NWMtLjAyOC0uMzk4LS4xMTQtLjc0LS4yODUtMS4wMjUtLjI1Ni0uMzk4LS42MjYtLjYyNi0xLjE5NS0uNjI2cy0uOTY4LjIyOC0xLjIyNC42MjZjLS4xNy4yNTYtLjI1Ni41OTgtLjM0MiAxLjAyNXptLTMwLjA4Mi0uOWMuMjg1Ljk2OC4xNDIgMS43OTMuMTQyIDEuODUgMCAuMTE0LS4xMTQuMTE0LS4xMTQuMTE0aC00LjI5N2MuMDI4LjY1NS4xNyAxLjEuNTEyIDEuNDIzLjMxMy4zMTMuNzk3LjUxMiAxLjQ4LjUxMiAxLjAyNSAwIDEuNDUtLjIgMS43NjUtLjMxMyAwIDAgLjExNC0uMDI4LjE3LjA4NWwuMjg1Ljc5N2MuMDU3LjE0MiAwIC4xNy0uMDI4LjItLjI1Ni4xNDItLjkuNDI3LTIuMTYzLjQyNy0uNTk4IDAtMS4xMzgtLjA4NS0xLjU2NS0uMjU2cy0uNzk3LS4zOTgtMS4wOC0uNy0uNDg0LS42ODMtLjYyNi0xLjA4Yy0uMTQyLS40MjctLjItLjg4Mi0uMi0xLjM2NnMuMDU3LS45NC4yLTEuMzY2Yy4xMTQtLjQyNy4zMTMtLjc5Ny41Ny0xLjFzLjU5OC0uNTcuOTk2LS43NGMuMzk4LS4yLjg4Mi0uMjg1IDEuNDIzLS4yODUuNDU1IDAgLjg4Mi4wODUgMS4yMjQuMjU2LjI1Ni4xMTQuNTQuMzEzLjgyNS42MjYuMTE0LjExNC4zOTguNTQuNDg0Ljk0em0tNC4yNy45aDMuMDc0Yy0uMDI4LS4zOTgtLjExNC0uNzQtLjI4NS0xLjAyNS0uMjU2LS4zOTgtLjYyNi0uNjI2LTEuMTk1LS42MjZzLS45NjguMjI4LTEuMjI0LjYyNmMtLjIuMjU2LS4yODUuNTk4LS4zNyAxLjAyNW0tNy41NDItLjIyOC43LjA4NXYtLjE3YzAtLjU3LS4xMTQtLjg1NC0uMzQyLTEuMDI1cy0uNTk4LS4yODUtMS4wNTMtLjI4NWMwIDAtMS4wNTMgMC0xLjg3OC40MjctLjAyOC4wMjgtLjA1Ny4wMjgtLjA1Ny4wMjhzLS4xMTQuMDI4LS4xNDItLjA1N2wtLjMxMy0uODI1Yy0uMDU3LS4xMTQuMDI4LS4xNy4wMjgtLjE3LjM5OC0uMzEzIDEuMy0uNDg0IDEuMy0uNDg0YTggOCAwIDAgMSAxLjEzOC0uMTE0cTEuMjggMCAxLjk2NC41OThjLjY4NC41OTguNjgzIDEuMDI1LjY4MyAxLjkwN3YzLjkyN3MwIC4xMTQtLjA4NS4xNDJjMCAwLS4xNy4wNTctLjMxMy4wODVsLTEuMDguMmE2LjYgNi42IDAgMCAxLTEuMy4xMTRjLS40MjcgMC0uNzk3LS4wMjgtMS4xMzgtLjExNGEyLjggMi44IDAgMCAxLS44ODItLjM3IDEuOSAxLjkgMCAwIDEtLjU3LS42ODNjLS4xNDItLjI1Ni0uMi0uNTk4LS4yLS45NjhhMi4yNiAyLjI2IDAgMCAxIC4yMjgtLjk5NmMuMTQzLS4yOTYuMzctLjUxMi42MjYtLjdzLjU3LS4zMTMuODgyLS40MjdhNC4zIDQuMyAwIDAgMSAxLjA1My0uMTQybC43NC4wMjh6bS0xLjcwOCAzLjAxN3MuMzk4LjMxMyAxLjI1Mi4yNTZjLjYyNi0uMDI4IDEuMTY3LS4xNDIgMS4xNjctLjE0MnYtMS45NTVzLS41NC0uMDg1LTEuMTY3LS4wODVjLS44ODIgMC0xLjI1Mi4zMTMtMS4yNTIuMzEzLS4yNTYuMTctLjM3LjQ1NS0uMzcuODI1YTEuMSAxLjEgMCAwIDAgLjE0Mi41NjljLjAyOC4wNTcuMDU3LjExNC4yMjguMjI4em0zNi4yODYtNS4yMDhjLS4wMjguMTE0LS4yNTYuNy0uMzEzLjktLjAyOC4wODUtLjA4NS4xMTQtLjE3LjExNCAwIDAtLjI1Ni0uMDU3LS40ODQtLjA1N2EyLjMgMi4zIDAgMCAwLS41NjkuMDg1Yy0uMi4wNTctLjM3LjE3LS41NC4zMTNzLS4yODUuMzctLjM3LjYyNi0uMTQyLjY4My0uMTQyIDEuMTM4djMuMTg3YzAgLjA4NS0uMDU3LjE0Mi0uMTQyLjE0MmgtMS4xMjhjLS4wODUgMC0uMTQyLS4wNTctLjE0Mi0uMTQydi02LjRjMC0uMDg1LjA1Ny0uMTQyLjExNC0uMTQyaDEuMWMuMDg1IDAgLjExNC4wNTcuMTE0LjE0MnYuNTEyYTEuOSAxLjkgMCAwIDEgLjctLjU0Yy4yNDUtLjExMy41Ny0uMiAxLjEtLjE3LjI4NS4wMjguNjU1LjA4NS43LjExNC4xMTQuMDI4LjE3LjA1Ny4xNDIuMTd6bS0xMC41Ni0yLjk2Yy4wMjggMCAuMTE0LjA1Ny4wODUuMTQybC0uMzQyLjljLS4wMjguMDU3LS4wNTcuMTE0LS4yLjA1Ny0uMDI4IDAtLjA4NS0uMDI4LS4yMjgtLjA1Ny0uMDg1LS4wMjgtLjIyOC0uMDI4LS4zNDItLjAyOC0uMTcgMC0uMzEzLjAyOC0uNDU1LjA1N3MtLjI1Ni4xMTQtLjM3LjIyOC0uMjI4LjI1Ni0uMzEzLjQ1NWE0LjMgNC4zIDAgMCAwLS4yMjguOTY4aDEuMzY2Yy4xMTQgMCAuMTQyLjA1Ny4xNDIuMTQybC0uMTcuODgyYy0uMDI4LjE0Mi0uMTQyLjExNC0uMTQyLjExNGgtMS40MjNsLS45IDUuNDkzYy0uMTE0LjU3LS4yMjggMS4wNTMtLjM3IDEuNDVzLS4zMTMuNjgzLS41Ny45NjhjLS4yMjguMjU2LS40ODQuNDU1LS43OTcuNTQtLjI4NS4xMTQtLjY1NS4xNy0xLjA1My4xNy0uMiAwLS4zOTggMC0uNjI2LS4wNTdhMS42IDEuNiAwIDAgMS0uMzk4LS4xMTRjLS4wNTctLjAyOC0uMDg1LS4wODUtLjA1Ny0uMTdsLjI5My0uODYzYy4wNTctLjExNC4xNDItLjA1Ny4xNDItLjA1N2wuMjI4LjA4NWMuMTE0LjAyOC4yMjguMDI4LjM0Mi4wMjhxLjMgMCAuNTEyLS4wODVjLjE3LS4wNTcuMjg1LS4xNy4zOTgtLjMxM3MuMi0uMzQyLjMxMy0uNTk4cS4xNTgtLjUxOS4yNTYtMS4wNTNsLjk2OC01LjM4aC0uOTRjLS4xMTQgMC0uMTQyLS4wNTctLjE0Mi0uMTQybC4xNy0uODgyYy4wMjgtLjE0Mi4xNDItLjExNC4xNDItLjExNGguOTY4bC4wNTctLjI4NWMuMTQyLS44NTQuNDI3LTEuNTA4Ljg1NC0xLjkzNXMxLjA1My0uNjU1IDEuODItLjY1NXEuMzAyLjAwMy41OTguMDU3Yy4xMTQtLjAyOC4yNTYgMCAuMzk4LjA1N3ptLTE5LjE4MiA5LjI1YzAgLjA4NS0uMDU3LjE0Mi0uMTE0LjE0MmgtMS4xMzhjLS4wODUgMC0uMTE0LS4wNTctLjExNC0uMTQydi05LjEzNmMwLS4wNTcuMDU3LS4xNDIuMTE0LS4xNDJoMS4xMzhjLjA4NSAwIC4xMTQuMDU3LjExNC4xNDJ6Ii8+PC9nPjwvc3ltYm9sPjwvc3ZnPg=="
+      },
+      "displayName": "Salesforce",
+      "typeVersion": 1,
+      "nodeCategories": [
+        {
+          "id": 2,
+          "name": "Sales"
+        },
+        {
+          "id": 6,
+          "name": "Communication"
+        }
+      ]
+    },
+    {
+      "id": 834,
+      "icon": "file:code.svg",
+      "name": "n8n-nodes-base.code",
+      "codex": {
+        "data": {
+          "alias": [
+            "cpde",
+            "Javascript",
+            "JS",
+            "Python",
+            "Script",
+            "Custom Code",
+            "Function"
+          ],
+          "details": "The Code node allows you to execute JavaScript in your workflow.",
+          "resources": {
+            "primaryDocumentation": [
+              {
+                "url": "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code/"
+              }
+            ]
+          },
+          "categories": [
+            "Development",
+            "Core Nodes"
+          ],
+          "nodeVersion": "1.0",
+          "codexVersion": "1.0",
+          "subcategories": {
+            "Core Nodes": [
+              "Helpers",
+              "Data Transformation"
+            ]
+          }
+        }
+      },
+      "group": "[\"transform\"]",
+      "defaults": {
+        "name": "Code"
+      },
+      "iconData": {
+        "type": "file",
+        "fileBuffer": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF8xMTcxXzQ0MSkiPgo8cGF0aCBkPSJNMTcwLjI4MyA0OEgxOTYuNUMyMDMuMTI3IDQ4IDIwOC41IDQyLjYyNzQgMjA4LjUgMzZWMTJDMjA4LjUgNS4zNzI1OCAyMDMuMTI3IDAgMTk2LjUgMEgxNzAuMjgzQzEyNi4xIDAgOTAuMjgzIDM1LjgxNzIgOTAuMjgzIDgwVjE3NkM5MC4yODMgMjA2LjkyOCA2NS4yMTA5IDIzMiAzNC4yODMgMjMySDIzQzE2LjM3MjYgMjMyIDExIDIzNy4zNzIgMTEgMjQ0VjI2OEMxMSAyNzQuNjI3IDE2LjM3MjQgMjgwIDIyLjk5OTYgMjgwTDM0LjI4MyAyODBDNjUuMjEwOSAyODAgOTAuMjgzIDMwNS4wNzIgOTAuMjgzIDMzNlY0NDBDOTAuMjgzIDQ3OS43NjQgMTIyLjUxOCA1MTIgMTYyLjI4MyA1MTJIMTk2LjVDMjAzLjEyNyA1MTIgMjA4LjUgNTA2LjYyNyAyMDguNSA1MDBWNDc2QzIwOC41IDQ2OS4zNzMgMjAzLjEyNyA0NjQgMTk2LjUgNDY0SDE2Mi4yODNDMTQ5LjAyOCA0NjQgMTM4LjI4MyA0NTMuMjU1IDEzOC4yODMgNDQwVjMzNkMxMzguMjgzIDMwOS4wMjIgMTI4LjAxMSAyODQuNDQzIDExMS4xNjQgMjY1Ljk2MUMxMDYuMTA5IDI2MC40MTYgMTA2LjEwOSAyNTEuNTg0IDExMS4xNjQgMjQ2LjAzOUMxMjguMDExIDIyNy41NTcgMTM4LjI4MyAyMDIuOTc4IDEzOC4yODMgMTc2VjgwQzEzOC4yODMgNjIuMzI2OSAxNTIuNjEgNDggMTcwLjI4MyA0OFoiIGZpbGw9IiNGRjk5MjIiLz4KPHBhdGggZD0iTTMwNSAzNkMzMDUgNDIuNjI3NCAzMTAuMzczIDQ4IDMxNyA0OEgzNDIuOTc5QzM2MC42NTIgNDggMzc0Ljk3OCA2Mi4zMjY5IDM3NC45NzggODBWMTc2QzM3NC45NzggMjAyLjk3OCAzODUuMjUxIDIyNy41NTcgNDAyLjA5OCAyNDYuMDM5QzQwNy4xNTMgMjUxLjU4NCA0MDcuMTUzIDI2MC40MTYgNDAyLjA5OCAyNjUuOTYxQzM4NS4yNTEgMjg0LjQ0MyAzNzQuOTc4IDMwOS4wMjIgMzc0Ljk3OCAzMzZWNDMyQzM3NC45NzggNDQ5LjY3MyAzNjAuNjUyIDQ2NCAzNDIuOTc5IDQ2NEgzMTdDMzEwLjM3MyA0NjQgMzA1IDQ2OS4zNzMgMzA1IDQ3NlY1MDBDMzA1IDUwNi42MjcgMzEwLjM3MyA1MTIgMzE3IDUxMkgzNDIuOTc5QzM4Ny4xNjEgNTEyIDQyMi45NzggNDc2LjE4MyA0MjIuOTc4IDQzMlYzMzZDNDIyLjk3OCAzMDUuMDcyIDQ0OC4wNTEgMjgwIDQ3OC45NzkgMjgwSDQ5MEM0OTYuNjI3IDI4MCA1MDIgMjc0LjYyOCA1MDIgMjY4VjI0NEM1MDIgMjM3LjM3MyA0OTYuNjI4IDIzMiA0OTAgMjMyTDQ3OC45NzkgMjMyQzQ0OC4wNTEgMjMyIDQyMi45NzggMjA2LjkyOCA0MjIuOTc4IDE3NlY4MEM0MjIuOTc4IDM1LjgxNzIgMzg3LjE2MSAwIDM0Mi45NzkgMEgzMTdDMzEwLjM3MyAwIDMwNSA1LjM3MjU4IDMwNSAxMlYzNloiIGZpbGw9IiNGRjk5MjIiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xMTcxXzQ0MSI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiBmaWxsPSJ3aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM+Cjwvc3ZnPgo="
+      },
+      "displayName": "Code",
+      "typeVersion": 2,
+      "nodeCategories": [
+        {
+          "id": 5,
+          "name": "Development"
+        },
+        {
+          "id": 9,
+          "name": "Core Nodes"
+        }
+      ]
+    }
+  ]
+}
