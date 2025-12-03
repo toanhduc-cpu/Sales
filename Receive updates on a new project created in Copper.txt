@@ -1,0 +1,42 @@
+================================================================================
+WORKFLOW: Receive updates on a new project created in Copper
+================================================================================
+
+📋 BASIC INFORMATION
+------------------------------
+ID: 537
+Name: Receive updates on a new project created in Copper
+Total Views: 309
+Created At: 2020-07-20T01:46:13.866Z
+Purchase URL: None
+
+👤 AUTHOR INFORMATION
+------------------------------
+Name: amudhan
+Username: sm-amudhan
+Verified: ✅ Yes
+
+📝 DESCRIPTION
+------------------------------
+Companion workflow for Copper Trigger node docs
+
+📊 RAW DATA (JSON)
+------------------------------
+{
+  "id": 537,
+  "name": "Receive updates on a new project created in Copper",
+  "totalViews": 309,
+  "purchaseUrl": null,
+  "user": {
+    "id": 5269,
+    "name": "amudhan",
+    "username": "sm-amudhan",
+    "bio": null,
+    "verified": true,
+    "links": "[]",
+    "avatar": "https://gravatar.com/avatar/7ee0febc0cbec2f1f6b24ddec3c4322e27c82c91dc729cfecf6ce12bfddd058d?r=pg&d=retro&size=200"
+  },
+  "description": "Companion workflow for Copper Trigger node docs\n\n",
+  "createdAt": "2020-07-20T01:46:13.866Z",
+  "nodes": []
+}
