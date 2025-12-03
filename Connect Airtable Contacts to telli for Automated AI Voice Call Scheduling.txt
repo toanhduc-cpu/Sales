@@ -1,0 +1,332 @@
+================================================================================
+WORKFLOW: Connect Airtable Contacts to telli for Automated AI Voice Call Scheduling
+================================================================================
+
+📋 BASIC INFORMATION
+------------------------------
+ID: 3803
+Name: Connect Airtable Contacts to telli for Automated AI Voice Call Scheduling
+Total Views: 303
+Created At: 2025-04-30T13:28:59.728Z
+Purchase URL: None
+
+👤 AUTHOR INFORMATION
+------------------------------
+Name: Paulo Ramirez
+Username: paulocerez
+Verified: ❌ No
+
+📝 DESCRIPTION
+------------------------------
+Upload your CRM contacts to telli and schedule AI voice-agent calls
+
+Introduction to telli and AI Voice-Agent Calls
+
+telli is an innovative platform that provides AI-powered voice agents capable of making calls and performing tasks tailored to specific customer use cases. These AI voice-agents can handle a wide range of communication tasks, from appointment scheduling to customer support, with remarkable efficiency and natural conversation flow.
+
+This template is designed for businesses and organizations looking to automate their outbound calling processes using telli's AI voice-agents in conjunction with Airtable as their CRM. It solves the problem of manual call scheduling and data transfer between your CRM and calling system, saving time and reducing human error.
+
+Prerequisites
+
+telli account
+Airtable base with contact information
+n8n instance
+
+Step-by-Step Setup Guide
+
+n8n Setup:
+   Create a new workflow in n8n.
+   Add the Airtable node to connect to your CRM table.
+
+telli API Configuration:
+   Log in to your telli dashboard.
+   Locate and copy your API key under telli - Settings - API/Webhooks.
+
+Workflow Configuration:
+   Add two HTTP Request nodes to your n8n workflow.
+   Set the "Authorization" header in both POST requests, replacing the value with your telli API key.
+   Configure the first request to use the /add-contact endpoint.
+   Set up the second request to use the /schedule-call endpoint.
+
+Data Mapping:
+   Map the relevant fields from your Airtable node to the telli API requests.
+
+Testing and Activation:
+   Run a test execution of your workflow.
+   Once satisfied with the results, activate the workflow.
+
+API Endpoint Details
+
+Add Contact Endpoint
+
+URL**: https://api.telli.com/v1/add-contact
+Method**: POST
+Headers**:
+  Authorization: YOUR-API-KEY
+  Content-Type: application/json
+Payload**:
+{
+  "external_contact_id": "string",
+  "salutation": "string",
+  "first_name": "string",
+  "last_name": "string",
+  "phone_number": "string",
+  "email": "jsmith@example.com",
+  "contact_details": {},
+  "timezone": "string"
+}
+
+Schedule Call Endpoint
+
+URL**: https://api.telli.com/v1/schedule-call
+Method**: POST
+Headers**:
+  Authorization: YOUR-API-KEY
+  Content-Type: application/json
+Payload**:
+{
+  "contact_id": TELLI-CONTACT-ID,
+  "agent_id": "string",
+  "max_retry_days": 123,
+  "call_details": {
+    "message": "Hello, this is your friendly reminder!",
+    "questions": [
+      {
+        "fieldName": "email",
+        "neededInformation": "email of the customer",
+        "exampleQuestion": "What is your email address?",
+        "responseFormat": "email string"
+      }
+    ]
+  },
+  "override_from_number": "string"
+}
+
+Use Cases
+
+This template is versatile and can be applied to various scenarios, including:
+
+Lead Qualification*: Automatically schedule calls to new leads entered in your CRM.
+
+Appointment Reminders*: Set up calls to remind clients of upcoming appointments.
+
+Customer Feedback*: Schedule follow-up calls after product deliveries or service completions.
+
+Uploading Multiple Contacts
+
+For bulk operations, you have two options:
+
+Loop Node: Include a Loop node in your n8n workflow to process multiple contacts sequentially.
+
+Batch Endpoints: Instead of /add-contact and /schedule-call, use telli's batch endpoints:
+   /add-contacts-batch: Add multiple contacts within an array.
+   /schedule-calls-batch: Schedule multiple calls at once.
+
+Example of batch endpoint usage:
+{
+  "contacts": [
+    {"name": "John Doe", "phone": "+1234567890"},
+    {"name": "Jane Smith", "phone": "+1987654321"}
+  ]
+}
+
+By leveraging this template, you can seamlessly integrate your Airtable CRM with telli's powerful AI voice-agents, automating your outbound calling process and enhancing your customer communication strategy.
+
+🔧 NODES USED
+------------------------------
+• HTTP Request - Categories: Core Nodes, Development
+
+Total Nodes: 1
+
+📊 RAW DATA (JSON)
+------------------------------
+{
+  "id": 3803,
+  "name": "Connect Airtable Contacts to telli for Automated AI Voice Call Scheduling",
+  "totalViews": 303,
+  "purchaseUrl": null,
+  "user": {
+    "id": 94161,
+    "name": "Paulo Ramirez",
+    "username": "paulocerez",
+    "bio": "",
+    "verified": false,
+    "links": "[]",
+    "avatar": "https://gravatar.com/avatar/ccd2c66cdb59bc3c55f9b336f548b7c3bb1812975b770d17fd8831a4307afd9b?r=pg&d=retro&size=200"
+  },
+  "description": "Upload your CRM contacts to telli and schedule AI voice-agent calls\n\nIntroduction to telli and AI Voice-Agent Calls\n\ntelli is an innovative platform that provides AI-powered voice agents capable of making calls and performing tasks tailored to specific customer use cases. These AI voice-agents can handle a wide range of communication tasks, from appointment scheduling to customer support, with remarkable efficiency and natural conversation flow.\n\nThis template is designed for businesses and organizations looking to automate their outbound calling processes using telli's AI voice-agents in conjunction with Airtable as their CRM. It solves the problem of manual call scheduling and data transfer between your CRM and calling system, saving time and reducing human error.\n\nPrerequisites\n\ntelli account\nAirtable base with contact information\nn8n instance\n\nStep-by-Step Setup Guide\n\nn8n Setup:\n   Create a new workflow in n8n.\n   Add the Airtable node to connect to your CRM table.\n\ntelli API Configuration:\n   Log in to your telli dashboard.\n   Locate and copy your API key under telli - Settings - API/Webhooks.\n\nWorkflow Configuration:\n   Add two HTTP Request nodes to your n8n workflow.\n   Set the \"Authorization\" header in both POST requests, replacing the value with your telli API key.\n   Configure the first request to use the /add-contact endpoint.\n   Set up the second request to use the /schedule-call endpoint.\n\nData Mapping:\n   Map the relevant fields from your Airtable node to the telli API requests.\n\nTesting and Activation:\n   Run a test execution of your workflow.\n   Once satisfied with the results, activate the workflow.\n\nAPI Endpoint Details\n\nAdd Contact Endpoint\n\nURL**: https://api.telli.com/v1/add-contact\nMethod**: POST\nHeaders**:\n  Authorization: YOUR-API-KEY\n  Content-Type: application/json\nPayload**:\n{\n  \"external_contact_id\": \"string\",\n  \"salutation\": \"string\",\n  \"first_name\": \"string\",\n  \"last_name\": \"string\",\n  \"phone_number\": \"string\",\n  \"email\": \"jsmith@example.com\",\n  \"contact_details\": {},\n  \"timezone\": \"string\"\n}\n\nSchedule Call Endpoint\n\nURL**: https://api.telli.com/v1/schedule-call\nMethod**: POST\nHeaders**:\n  Authorization: YOUR-API-KEY\n  Content-Type: application/json\nPayload**:\n{\n  \"contact_id\": TELLI-CONTACT-ID,\n  \"agent_id\": \"string\",\n  \"max_retry_days\": 123,\n  \"call_details\": {\n    \"message\": \"Hello, this is your friendly reminder!\",\n    \"questions\": [\n      {\n        \"fieldName\": \"email\",\n        \"neededInformation\": \"email of the customer\",\n        \"exampleQuestion\": \"What is your email address?\",\n        \"responseFormat\": \"email string\"\n      }\n    ]\n  },\n  \"override_from_number\": \"string\"\n}\n\nUse Cases\n\nThis template is versatile and can be applied to various scenarios, including:\n\nLead Qualification*: Automatically schedule calls to new leads entered in your CRM.\n\nAppointment Reminders*: Set up calls to remind clients of upcoming appointments.\n\nCustomer Feedback*: Schedule follow-up calls after product deliveries or service completions.\n\nUploading Multiple Contacts\n\nFor bulk operations, you have two options:\n\nLoop Node: Include a Loop node in your n8n workflow to process multiple contacts sequentially.\n\nBatch Endpoints: Instead of /add-contact and /schedule-call, use telli's batch endpoints:\n   /add-contacts-batch: Add multiple contacts within an array.\n   /schedule-calls-batch: Schedule multiple calls at once.\n\nExample of batch endpoint usage:\n{\n  \"contacts\": [\n    {\"name\": \"John Doe\", \"phone\": \"+1234567890\"},\n    {\"name\": \"Jane Smith\", \"phone\": \"+1987654321\"}\n  ]\n}\n\nBy leveraging this template, you can seamlessly integrate your Airtable CRM with telli's powerful AI voice-agents, automating your outbound calling process and enhancing your customer communication strategy.\n",
+  "createdAt": "2025-04-30T13:28:59.728Z",
+  "nodes": [
+    {
+      "id": 19,
+      "icon": "file:httprequest.svg",
+      "name": "n8n-nodes-base.httpRequest",
+      "codex": {
+        "data": {
+          "alias": [
+            "API",
+            "Request",
+            "URL",
+            "Build",
+            "cURL"
+          ],
+          "resources": {
+            "generic": [
+              {
+                "url": "https://n8n.io/blog/2021-the-year-to-automate-the-new-you-with-n8n/",
+                "icon": "☀️",
+                "label": "2021: The Year to Automate the New You with n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/why-business-process-automation-with-n8n-can-change-your-daily-life/",
+                "icon": "🧬",
+                "label": "Why business process automation with n8n can change your daily life"
+              },
+              {
+                "url": "https://n8n.io/blog/automatically-pulling-and-visualizing-data-with-n8n/",
+                "icon": "📈",
+                "label": "Automatically pulling and visualizing data with n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/learn-how-to-automatically-cross-post-your-content-with-n8n/",
+                "icon": "✍️",
+                "label": "Learn how to automatically cross-post your content with n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/automatically-adding-expense-receipts-to-google-sheets-with-telegram-mindee-twilio-and-n8n/",
+                "icon": "🧾",
+                "label": "Automatically Adding Expense Receipts to Google Sheets with Telegram, Mindee, Twilio, and n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/running-n8n-on-ships-an-interview-with-maranics/",
+                "icon": "🛳",
+                "label": "Running n8n on ships: An interview with Maranics"
+              },
+              {
+                "url": "https://n8n.io/blog/what-are-apis-how-to-use-them-with-no-code/",
+                "icon": " 🪢",
+                "label": "What are APIs and how to use them with no code"
+              },
+              {
+                "url": "https://n8n.io/blog/5-tasks-you-can-automate-with-notion-api/",
+                "icon": "⚡️",
+                "label": "5 tasks you can automate with the new Notion API "
+              },
+              {
+                "url": "https://n8n.io/blog/world-poetry-day-workflow/",
+                "icon": "📜",
+                "label": "Celebrating World Poetry Day with a daily poem in Telegram"
+              },
+              {
+                "url": "https://n8n.io/blog/automate-google-apps-for-productivity/",
+                "icon": "💡",
+                "label": "15 Google apps you can combine and automate to increase productivity"
+              },
+              {
+                "url": "https://n8n.io/blog/automate-designs-with-bannerbear-and-n8n/",
+                "icon": "🎨",
+                "label": "Automate Designs with Bannerbear and n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/how-uproc-scraped-a-multi-page-website-with-a-low-code-workflow/",
+                "icon": " 🕸️",
+                "label": "How uProc scraped a multi-page website with a low-code workflow"
+              },
+              {
+                "url": "https://n8n.io/blog/building-an-expense-tracking-app-in-10-minutes/",
+                "icon": "📱",
+                "label": "Building an expense tracking app in 10 minutes"
+              },
+              {
+                "url": "https://n8n.io/blog/5-workflow-automations-for-mattermost-that-we-love-at-n8n/",
+                "icon": "🤖",
+                "label": "5 workflow automations for Mattermost that we love at n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/how-to-use-the-http-request-node-the-swiss-army-knife-for-workflow-automation/",
+                "icon": "🧰",
+                "label": "How to use the HTTP Request Node - The Swiss Army Knife for Workflow Automation"
+              },
+              {
+                "url": "https://n8n.io/blog/learn-how-to-use-webhooks-with-mattermost-slash-commands/",
+                "icon": "🦄",
+                "label": "Learn how to use webhooks with Mattermost slash commands"
+              },
+              {
+                "url": "https://n8n.io/blog/how-a-membership-development-manager-automates-his-work-and-investments/",
+                "icon": "📈",
+                "label": "How a Membership Development Manager automates his work and investments"
+              },
+              {
+                "url": "https://n8n.io/blog/a-low-code-bitcoin-ticker-built-with-questdb-and-n8n-io/",
+                "icon": "📈",
+                "label": "A low-code bitcoin ticker built with QuestDB and n8n.io"
+              },
+              {
+                "url": "https://n8n.io/blog/how-to-set-up-a-ci-cd-pipeline-with-no-code/",
+                "icon": "🎡",
+                "label": "How to set up a no-code CI/CD pipeline with GitHub and TravisCI"
+              },
+              {
+                "url": "https://n8n.io/blog/automations-for-activists/",
+                "icon": "✨",
+                "label": "How Common Knowledge use workflow automation for activism"
+              },
+              {
+                "url": "https://n8n.io/blog/creating-scheduled-text-affirmations-with-n8n/",
+                "icon": "🤟",
+                "label": "Creating scheduled text affirmations with n8n"
+              },
+              {
+                "url": "https://n8n.io/blog/how-goomer-automated-their-operations-with-over-200-n8n-workflows/",
+                "icon": "🛵",
+                "label": "How Goomer automated their operations with over 200 n8n workflows"
+              },
+              {
+                "url": "https://n8n.io/blog/aws-workflow-automation/",
+                "label": "7 no-code workflow automations for Amazon Web Services"
+              }
+            ],
+            "primaryDocumentation": [
+              {
+                "url": "https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/"
+              }
+            ]
+          },
+          "categories": [
+            "Development",
+            "Core Nodes"
+          ],
+          "nodeVersion": "1.0",
+          "codexVersion": "1.0",
+          "subcategories": {
+            "Core Nodes": [
+              "Helpers"
+            ]
+          }
+        }
+      },
+      "group": "[\"output\"]",
+      "defaults": {
+        "name": "HTTP Request",
+        "color": "#0004F5"
+      },
+      "iconData": {
+        "type": "file",
+        "fileBuffer": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik00MCAyMEM0MCA4Ljk1MzE0IDMxLjA0NjkgMCAyMCAwQzguOTUzMTQgMCAwIDguOTUzMTQgMCAyMEMwIDMxLjA0NjkgOC45NTMxNCA0MCAyMCA0MEMzMS4wNDY5IDQwIDQwIDMxLjA0NjkgNDAgMjBaTTIwIDM2Ljk0NThDMTguODg1MiAzNi45NDU4IDE3LjEzNzggMzUuOTY3IDE1LjQ5OTggMzIuNjk4NUMxNC43OTY0IDMxLjI5MTggMTQuMTk2MSAyOS41NDMxIDEzLjc1MjYgMjcuNjg0N0gyNi4xODk4QzI1LjgwNDUgMjkuNTQwMyAyNS4yMDQ0IDMxLjI5MDEgMjQuNTAwMiAzMi42OTg1QzIyLjg2MjIgMzUuOTY3IDIxLjExNDggMzYuOTQ1OCAyMCAzNi45NDU4Wk0xMi45MDY0IDIwQzEyLjkwNjQgMjEuNjA5NyAxMy4wMDg3IDIzLjE2NCAxMy4yMDAzIDI0LjYzMDVIMjYuNzk5N0MyNi45OTEzIDIzLjE2NCAyNy4wOTM2IDIxLjYwOTcgMjcuMDkzNiAyMEMyNy4wOTM2IDE4LjM5MDMgMjYuOTkxMyAxNi44MzYgMjYuNzk5NyAxNS4zNjk1SDEzLjIwMDNDMTMuMDA4NyAxNi44MzYgMTIuOTA2NCAxOC4zOTAzIDEyLjkwNjQgMjBaTTIwIDMuMDU0MTlDMjEuMTE0OSAzLjA1NDE5IDIyLjg2MjIgNC4wMzA3OCAyNC41MDAxIDcuMzAwMzlDMjUuMjA2NiA4LjcxNDA4IDI1LjgwNzIgMTAuNDA2NyAyNi4xOTIgMTIuMzE1M0gxMy43NTAxQzE0LjE5MzMgMTAuNDA0NyAxNC43OTQyIDguNzEyNTQgMTUuNDk5OCA3LjMwMDY0QzE3LjEzNzcgNC4wMzA4MyAxOC44ODUxIDMuMDU0MTkgMjAgMy4wNTQxOVpNMzAuMTQ3OCAyMEMzMC4xNDc4IDE4LjQwOTkgMzAuMDU0MyAxNi44NjE3IDI5LjgyMjcgMTUuMzY5NUgzNi4zMDQyQzM2LjcyNTIgMTYuODQyIDM2Ljk0NTggMTguMzk2NCAzNi45NDU4IDIwQzM2Ljk0NTggMjEuNjAzNiAzNi43MjUyIDIzLjE1OCAzNi4zMDQyIDI0LjYzMDVIMjkuODIyN0MzMC4wNTQzIDIzLjEzODMgMzAuMTQ3OCAyMS41OTAxIDMwLjE0NzggMjBaTTI2LjI3NjcgNC4yNTUxMkMyNy42MzY1IDYuMzYwMTkgMjguNzExIDkuMTMyIDI5LjM3NzQgMTIuMzE1M0gzNS4xMDQ2QzMzLjI1MTEgOC42NjggMzAuMTA3IDUuNzgzNDYgMjYuMjc2NyA0LjI1NTEyWk0xMC42MjI2IDEyLjMxNTNINC44OTI5M0M2Ljc1MTQ3IDguNjY3ODQgOS44OTM1MSA1Ljc4MzQxIDEzLjcyMzIgNC4yNTUxM0MxMi4zNjM1IDYuMzYwMjEgMTEuMjg5IDkuMTMyMDEgMTAuNjIyNiAxMi4zMTUzWk0zLjA1NDE5IDIwQzMuMDU0MTkgMjEuNjAzIDMuMjc3NDMgMjMuMTU3NSAzLjY5NDg0IDI0LjYzMDVIMTAuMTIxN0M5Ljk0NjE5IDIzLjE0MiA5Ljg1MjIyIDIxLjU5NDMgOS44NTIyMiAyMEM5Ljg1MjIyIDE4LjQwNTcgOS45NDYxOSAxNi44NTggMTAuMTIxNyAxNS4zNjk1SDMuNjk0ODRDMy4yNzc0MyAxNi44NDI1IDMuMDU0MTkgMTguMzk3IDMuMDU0MTkgMjBaTTI2LjI3NjYgMzUuNzQyN0MyNy42MzY1IDMzLjYzOTMgMjguNzExIDMwLjg2OCAyOS4zNzc0IDI3LjY4NDdIMzUuMTA0NkMzMy4yNTEgMzEuMzMyMiAzMC4xMDY4IDM0LjIxNzkgMjYuMjc2NiAzNS43NDI3Wk0xMy43MjM0IDM1Ljc0MjdDOS44OTM2OSAzNC4yMTc5IDYuNzUxNTUgMzEuMzMyNCA0Ljg5MjkzIDI3LjY4NDdIMTAuNjIyNkMxMS4yODkgMzAuODY4IDEyLjM2MzUgMzMuNjM5MyAxMy43MjM0IDM1Ljc0MjdaIiBmaWxsPSIjM0E0MkU5Ii8+Cjwvc3ZnPgo="
+      },
+      "displayName": "HTTP Request",
+      "typeVersion": 4,
+      "nodeCategories": [
+        {
+          "id": 5,
+          "name": "Development"
+        },
+        {
+          "id": 9,
+          "name": "Core Nodes"
+        }
+      ]
+    }
+  ]
+}
